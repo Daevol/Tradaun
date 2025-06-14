@@ -10,6 +10,12 @@ public class FeaturePipeline : IFeaturePipeline
     private readonly Queue<decimal> _deltas = new();
     private readonly Queue<decimal> _basis = new();
     private readonly int _window = 20;
+    private readonly ISentimentAnalyzer _analyzer;
+
+    public FeaturePipeline(ISentimentAnalyzer analyzer)
+    {
+        _analyzer = analyzer;
+    }
 
     public Features Update(Quote l1, Level2Quote l2, Trade trade, decimal brent, decimal usdRub, string[] news)
     {
@@ -33,8 +39,7 @@ public class FeaturePipeline : IFeaturePipeline
             ? (decimal)Math.Sqrt(_deltas.Select(d => Math.Pow((double)(d - meanDelta), 2)).Sum() / _deltas.Count)
             : 0m;
 
-        var sentiment = news.Any(n => n.Contains("bull", StringComparison.OrdinalIgnoreCase)) ? Sentiment.Bull :
-            news.Any(n => n.Contains("bear", StringComparison.OrdinalIgnoreCase)) ? Sentiment.Bear : Sentiment.Neutral;
+        var sentiment = _analyzer.Analyze(news);
 
         return new Features(delta, zScore, (double)volatility, sentiment);
     }

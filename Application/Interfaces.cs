@@ -23,3 +23,19 @@ public interface IRiskGuardian
 {
     bool CheckRisk(decimal pnl, decimal slippage, decimal equity);
 }
+
+public interface INewsSource
+{
+    Task<string[]> GetLatestAsync(CancellationToken token);
+}
+
+public interface ISentimentAnalyzer
+{
+    Sentiment Analyze(string[] news);
+}
+
+public interface IMarketData
+{
+    Task<(Quote l1, Level2Quote l2, Trade trade)> GetMarketDataAsync(string instrument, CancellationToken token);
+    Task<(decimal brent, decimal usdRub)> GetExternalDriversAsync(CancellationToken token);
+}
